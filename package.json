@@ -1,7 +1,7 @@
 {
   "name": "axaxyz-portal-frontend",
   "version": "1.0.0",
-  "description": "Frontend Portal Bot WA Keuangan Multi-Client Axa Xyz dengan Arsitektur Dual Connection (Google Apps Script & Vercel)",
+  "description": "Frontend Portal Bot WA Keuangan Multi-Client Axa Xyz dengan Arsitektur Dual Connection (Google Apps Script & Vercel) dan Dukungan Realtime WebSocket",
   "main": "index.html",
   "scripts": {
     "dev": "serve . -p 3000",
@@ -14,14 +14,20 @@
     "google-apps-script",
     "neubrutalism",
     "dual-connection",
+    "websocket",
+    "socket-io",
     "pwa"
   ],
   "author": "Axa Xyz by Zettbos",
   "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.0"
+  },
   "devDependencies": {
     "serve": "^14.2.4"
   },
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   }
 }
