@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal Bot WA Keuangan Multi-Client - AxaXyz</title>
+  
+  <style>
+    :root {
+      --bg-main: #E0F2FE;
+      --card-bg: #FFFFFF;
+      --card-accent: #BAE6FD;
+      --brand-cyan: #0284C7;
+      --accent-yellow: #FEF08A;
+      --accent-coral: #FDA4AF;
+      --accent-green: #BBF7D0;
+      --text-dark: #000000;
+      --border-dark: 3px solid #000000;
+      --border-thin: 2px solid #000000;
+      --shadow-hard: 4px 4px 0px #000000;
+      --shadow-hard-lg: 6px 6px 0px #000000;
+      --shadow-hard-sm: 2px 2px 0px #000000;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      line-height: 1.4;
+      padding-bottom: 70px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header.navbar {
+      background-color: var(--card-bg);
+      border-bottom: var(--border-dark);
+      padding: 14px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .brand-badge {
+      background-color: var(--accent-yellow);
+      border: var(--border-thin);
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      border-radius: 6px;
+      box-shadow: var(--shadow-hard-sm);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+    .nav-link:hover {
+      background-color: var(--card-accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text-dark);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      user-select: none;
+    }
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-hard-sm);
+    }
+    .btn-cyan { background-color: var(--brand-cyan); color: #FFFFFF; }
+    .btn-yellow { background-color: var(--accent-yellow); }
+    .btn-coral { background-color: var(--accent-coral); }
+    .btn-green { background-color: var(--accent-green); }
+    .btn-white { background-color: #FFFFFF; }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      border: var(--border-thin);
+      box-shadow: var(--shadow-hard-sm);
+    }
+    .btn:disabled, .btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .neu-card {
+      background-color: var(--card-bg);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-lg);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .hero-section { padding: 40px 0 20px 0; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 30px;
+      align-items: center;
+    }
+    .hero-title {
+      font-size: 2.3rem;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero-title span {
+      background-color: var(--card-accent);
+      padding: 2px 8px;
+      border: var(--border-thin);
+      box-shadow: var(--shadow-hard-sm);
+      border-radius: 6px;
+    }
+    .hero-subtitle {
+      font-size: 1.05rem;
+      color: #334155;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .feature-card {
+      background-color: var(--card-bg);
+      border: var(--border-dark);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hard);
+      padding: 20px;
+    }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: inline-block;
+      background: var(--card-accent);
+      border: var(--border-thin);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: var(--shadow-hard-sm);
+    }
+
+    .wa-float-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #25D366;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-lg);
+      border-radius: 50px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #000000;
+      font-weight: 800;
+      text-decoration: none;
+      z-index: 990;
+      transition: transform 0.15s ease;
+    }
+    .wa-float-bubble:hover { transform: scale(1.05); }
+
+    .ai-float-bubble {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      background-color: var(--accent-yellow);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-lg);
+      border-radius: 50px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #000000;
+      font-weight: 800;
+      cursor: pointer;
+      z-index: 990;
+      transition: transform 0.15s ease;
+    }
+    .ai-float-bubble:hover { transform: scale(1.05); }
+
+    .ai-chatbox-window {
+      position: fixed;
+      bottom: 148px;
+      right: 24px;
+      width: 360px;
+      max-width: calc(100vw - 40px);
+      height: 490px;
+      background-color: #FFFFFF;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-lg);
+      border-radius: var(--radius);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    .ai-chat-header {
+      background-color: var(--brand-cyan);
+      color: #FFFFFF;
+      padding: 12px 16px;
+      border-bottom: var(--border-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+    }
+    .ai-chat-body {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      background-color: #F8FAFC;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      font-weight: 600;
+      border: var(--border-thin);
+    }
+    .msg-bot {
+      background-color: var(--card-accent);
+      align-self: flex-start;
+      box-shadow: var(--shadow-hard-sm);
+    }
+    .msg-user {
+      background-color: var(--accent-yellow);
+      align-self: flex-end;
+      box-shadow: var(--shadow-hard-sm);
+    }
+    .ai-chat-footer {
+      padding: 10px;
+      border-top: var(--border-dark);
+      background-color: #FFFFFF;
+      display: flex;
+      gap: 6px;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border: var(--border-thin);
+      box-shadow: var(--shadow-hard-sm);
+    }
+    .role-admin { background-color: var(--accent-green); }
+    .role-viewer { background-color: var(--accent-yellow); }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .metric-card {
+      background-color: var(--card-bg);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .metric-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .chart-container {
+      background-color: #FFFFFF;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-box { width: 14px; height: 14px; border: 2px solid #000; }
+
+    .table-container {
+      overflow-x: auto;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      border-radius: 10px;
+      background-color: #FFFFFF;
+    }
+    table.neu-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+    table.neu-table th {
+      background-color: var(--card-accent);
+      border-bottom: var(--border-dark);
+      padding: 12px 14px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+    table.neu-table td {
+      padding: 12px 14px;
+      border-bottom: 2px solid #E2E8F0;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+    table.neu-table tr:hover { background-color: #F8FAFC; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1050;
+      padding: 16px;
+    }
+    .modal-content {
+      background: #FFFFFF;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-lg);
+      border-radius: var(--radius);
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: var(--border-thin);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 900; }
+    .close-modal-btn {
+      background: var(--accent-coral);
+      border: var(--border-thin);
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-weight: 800;
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard-sm);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: #FFFFFF;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      background: #F0F9FF;
+    }
+
+    .toast-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--accent-yellow);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      z-index: 2100;
+      display: none;
+      max-width: 320px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 1.8rem; }
+      .nav-links { display: none; }
+      .ai-chatbox-window { right: 12px; bottom: 140px; width: calc(100vw - 24px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="appToast" class="toast-box">Pemberitahuan</div>
+
+  <header class="navbar">
+    <div class="container nav-wrapper">
+      <a href="#" class="brand-logo" onclick="switchView('landing'); return false;">
+        <span>🤖 AxaBOT Portal</span>
+        <span id="connModeBadge" class="brand-badge" style="background:#BBF7D0;">🌐 DUAL CONNECT</span>
+      </a>
+      
+      <div class="nav-links">
+        <a href="#features" class="nav-link" onclick="switchView('landing')">Fitur</a>
+        <a href="#services" class="nav-link" onclick="switchView('landing')">Layanan</a>
+        <a href="#pricing" class="nav-link" onclick="switchView('landing')">Integrasi</a>
+      </div>
+
+      <div id="authControls" style="display: flex; gap: 8px; align-items: center;">
+        <button id="loginNavBtn" class="btn btn-cyan btn-sm" onclick="openLoginModal()">
+          🔑 Akses Portal
+        </button>
+        <div id="userProfileBadge" class="hidden" style="display: flex; align-items: center; gap: 8px;">
+          <span id="roleIndicator" class="role-badge role-admin">Admin</span>
+          <button id="settingsNavBtn" class="btn btn-yellow btn-sm admin-only" onclick="openSettingsModal()">⚙️ Pengaturan</button>
+          <button class="btn btn-coral btn-sm" onclick="logoutSession()">Keluar</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="landingPage" class="container">
+    <section class="hero-section">
+      <div class="neu-card" style="background-color: #FFFFFF;">
+        <div class="hero-grid">
+          <div>
+            <div style="margin-bottom: 12px;">
+              <span class="brand-badge">⚡ DUAL BACKEND HYBRID (GAS + VERCEL)</span>
+            </div>
+            <h1 class="hero-title">
+              Kelola Puluhan <span>Bot WA Keuangan</span> Multi-Client Tanpa Ribet.
+            </h1>
+            <p class="hero-subtitle">
+              Sentralisasi monitoring bot WhatsApp berbasis cloud Railway, verifikasi sesi QR realtime, pemindaian nota otomatis dengan Gemini AI, dan pelaporan keuangan resmi PDF otomatis.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-cyan" onclick="openLoginModal()">
+                🚀 Masuk ke Dashboard Admin
+              </button>
+              <button class="btn btn-yellow" onclick="installPWA()">
+                📥 Install App (PWA)
+              </button>
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <div class="neu-card" style="background-color: var(--card-accent); transform: rotate(1deg);">
+              <div style="font-size: 3rem; margin-bottom: 10px;">📈 🧾 💬</div>
+              <h3 style="font-size: 1.15rem; font-weight: 900; margin-bottom: 6px;">Otomasi Finansial 100%</h3>
+              <p style="font-size: 0.85rem; font-weight: 600;">
+                Tersambung langsung ke Google Sheet & Baileys Railway via dual mode Google Apps Script & Vercel.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2 style="font-size: 1.6rem; font-weight: 900; margin-bottom: 18px;">Keunggulan Sistem AxaXyz</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 style="font-weight: 900; margin-bottom: 6px;">Dual Connection Support</h3>
+          <p style="font-size: 0.85rem; color: #334155;">
+            Jalankan portal secara native di Google Apps Script atau deploy bebas di GitHub Pages & Vercel secara seamless.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3 style="font-weight: 900; margin-bottom: 6px;">Multi-Tenant Railway</h3>
+          <p style="font-size: 0.85rem; color: #334155;">
+            Pantau status bot puluhan client sekaligus dan lakukan sinkronisasi sesi QR WhatsApp secara realtime.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3 style="font-weight: 900; margin-bottom: 6px;">Gemini 3.6 Flash Terkini</h3>
+          <p style="font-size: 0.85rem; color: #334155;">
+            Dukungan penuh generasi model AI Google Studio terbaru untuk OCR Struk presisi tinggi dan Chatbot Finansial cepat.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 style="font-weight: 900; margin-bottom: 6px;">Native SVG Charts</h3>
+          <p style="font-size: 0.85rem; color: #334155;">
+            Visualisasi grafik arus kas bulanan interaktif tanpa dependensi library eksternal, super ringan & anti-lag.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top: 40px; padding: 24px; text-align: center; border-top: var(--border-dark); font-weight: 700; font-size: 0.85rem;">
+      <p>© 2026 Portal Bot Keuangan AxaXyz. Ditenagai oleh Google Apps Script, Vercel & Railway Cloud.</p>
+    </footer>
+  </main>
+
+  <main id="dashboardPage" class="container hidden" style="padding-top: 24px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h1 style="font-size: 1.8rem; font-weight: 900;">Dashboard Monitoring Bot</h1>
+        <p style="font-size: 0.88rem; color: #475569; font-weight: 600;">
+          Kelola sesi WhatsApp, validasi nota AI, dan ekspor laporan berkala.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="addClientBtn" class="btn btn-green admin-only" onclick="openClientModal(false)">
+          ➕ Tambah Client Baru
+        </button>
+        <button id="settingsBtn" class="btn btn-yellow admin-only" onclick="openSettingsModal()">
+          ⚙️ Pengaturan AI & Sistem
+        </button>
+        <button id="auditLogBtn" class="btn btn-white" onclick="openAuditModal()">
+          📜 Audit Logs
+        </button>
+      </div>
+    </div>
+
+    <!-- Metrik Keuangan -->
+    <div class="metrics-grid">
+      <div class="metric-card" style="border-left: 8px solid var(--brand-cyan);">
+        <div class="metric-label">Total Pemasukan</div>
+        <div id="metricInflow" class="metric-value" style="color: var(--brand-cyan);">Rp 0</div>
+      </div>
+
+      <div class="metric-card" style="border-left: 8px solid var(--accent-coral);">
+        <div class="metric-label">Total Pengeluaran</div>
+        <div id="metricOutflow" class="metric-value" style="color: #E11D48;">Rp 0</div>
+      </div>
+
+      <div class="metric-card" style="border-left: 8px solid #16A34A;">
+        <div class="metric-label">Saldo Kas Bersih</div>
+        <div id="metricNet" class="metric-value" style="color: #16A34A;">Rp 0</div>
+      </div>
+
+      <div class="metric-card" style="border-left: 8px solid var(--accent-yellow);">
+        <div class="metric-label">Total Client Terdaftar</div>
+        <div id="metricTotalClients" class="metric-value">0</div>
+      </div>
+    </div>
+
+    <!-- Visual SVG Chart -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 900;">Grafik Arus Kas Bulanan (Native SVG)</h2>
+          <span style="font-size: 0.78rem; color: #64748B; font-weight: 600;">Performa kas tanpa CDN eksternal (Lightweight)</span>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-box" style="background: var(--brand-cyan);"></div> Pemasukan</div>
+          <div class="legend-item"><div class="legend-box" style="background: var(--accent-coral);"></div> Pengeluaran</div>
+          <div class="legend-item"><div class="legend-box" style="background: #10B981;"></div> Tren Saldo Bersih</div>
+        </div>
+      </div>
+
+      <div id="svgChartWrapper" style="width: 100%; overflow-x: auto;">
+        <!-- Diisi secara dinamis oleh JavaScript -->
+      </div>
+    </div>
+
+    <div class="neu-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 1.2rem; font-weight: 900;">Daftar Tenant Client WhatsApp</h2>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Cari nama client / ID..." style="width: 220px;" oninput="debounceSearch()">
+          <select id="statusFilter" class="form-select" style="width: 150px;" onchange="loadClientsTable(1)">
+            <option value="ALL">Semua Status</option>
+            <option value="Connected">Connected</option>
+            <option value="Disconnected">Disconnected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="neu-table">
+          <thead>
+            <tr>
+              <th>ID Client</th>
+              <th>Nama Entitas</th>
+              <th>Nomor WhatsApp</th>
+              <th>Status Sesi</th>
+              <th>Folder Drive</th>
+              <th style="text-align: right;">Aksi Integrasi</th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody">
+            <!-- Bersih dari dummy data -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; flex-wrap: wrap; gap: 10px;">
+        <span id="pageInfo" style="font-weight: 800; font-size: 0.85rem;">Halaman 1 dari 1</span>
+        <div style="display: flex; gap: 8px;">
+          <button id="prevPageBtn" class="btn btn-white btn-sm" onclick="changePage(-1)">◀ Sebelumnya</button>
+          <button id="nextPageBtn" class="btn btn-white btn-sm" onclick="changePage(1)">Selanjutnya ▶</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <button class="ai-float-bubble" onclick="toggleAiChat()" title="Tanya Asisten AI AxaBOT">
+    <span style="font-size: 1.3rem;">🤖</span>
+    <span>Tanya AI</span>
+  </button>
+
+  <a href="https://api.whatsapp.com/send/?phone=6285338922586&text=Halo%20Admin%2C%20saya%20tertarik%20dengan%20Portal%20Bot%20Keuangan&type=phone_number&app_absent=0" 
+     target="_blank" 
+     class="wa-float-bubble" 
+     title="Hubungi Dukungan Bot WhatsApp">
+    <span style="font-size: 1.3rem;">💬</span>
+    <span>Tanya Bot WA</span>
+  </a>
+
+  <!-- Widget Chatbox AxaBOT Financial AI -->
+  <div id="aiChatboxWindow" class="ai-chatbox-window">
+    <div class="ai-chat-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span>🤖</span>
+        <span>AxaBOT Financial AI</span>
+      </div>
+      <button style="background: none; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer; color: #FFF;" onclick="toggleAiChat()">✕</button>
+    </div>
+    
+    <div id="aiChatBody" class="ai-chat-body">
+      <div class="chat-msg msg-bot">
+        Halo! Saya AxaBOT AI. Ada yang bisa saya bantu terkait pengelolaan keuangan atau integrasi bot WhatsApp hari ini?
+      </div>
+    </div>
+
+    <div class="ai-chat-footer">
+      <input type="text" id="aiChatInput" class="form-input" placeholder="Ketik pertanyaan keuangan..." style="padding: 8px; font-size: 0.82rem;" onkeypress="if(event.key === 'Enter') sendAiMessage();">
+      <button class="btn btn-cyan btn-sm" onclick="sendAiMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <!-- MODAL: SETTINGS -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Pengaturan Sistem & Model AI Studio</h3>
+        <button class="close-modal-btn" onclick="closeModal('settingsModal')">✕</button>
+      </div>
+      <form onsubmit="event.preventDefault(); submitSettings();">
+        <div class="form-group">
+          <label class="form-label">Google AI Studio Gemini API Key</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="settingGeminiApiKey" class="form-input" placeholder="AQ.Ab8... atau AIzaSy..." style="flex:1;" required>
+            <button type="button" class="btn btn-white btn-sm" onclick="toggleApiKeyVisibility()" title="Tampilkan/Sembunyikan Kunci">👁️</button>
+          </div>
+          <small style="color: #64748B; font-size: 0.75rem; font-weight: 600; display:block; margin-top:4px;">
+            Mendukung format kunci baru Google AI Studio (<code>AQ.*</code>) dan format lama (<code>AIza*</code>).
+          </small>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <button type="button" id="btnTestApi" class="btn btn-yellow btn-sm" style="width: 100%;" onclick="runTestGeminiApi()">
+            🧪 Tes Koneksi Gemini API Sekarang
+          </button>
+          <div id="testApiResult" class="hidden" style="margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; border: var(--border-thin);"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Model AI untuk Chatbox Asisten (GEMINI_MODEL_TEXT)</label>
+          <select id="settingGeminiModelText" class="form-select">
+            <option value="gemini-3.6-flash">gemini-3.6-flash (Rekomendasi Utama - Produksi & Multimodal)</option>
+            <option value="gemini-3.7-flash">gemini-3.7-flash (Generasi Terbaru - Super Cepat)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash (Performa Unggul)</option>
+            <option value="gemini-3-flash">gemini-3-flash (Flash Tier Generasi 3)</option>
+            <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (Ultra Low Latency)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash (Kompatibilitas Luas)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (Stabil & Handal)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Model AI untuk OCR Nota Struk (GEMINI_MODEL_VISION)</label>
+          <select id="settingGeminiModelVision" class="form-select">
+            <option value="gemini-3.6-flash">gemini-3.6-flash (Default - Presisi Multimodal Tinggi)</option>
+            <option value="gemini-3.7-flash">gemini-3.7-flash (Generasi Terbaru)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash (Ekstraksi Struk Optimal)</option>
+            <option value="gemini-3-flash">gemini-3-flash (Presisi Ekstraksi Struk Tinggi)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash (Kompatibel Semua Akun)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (Standar Multimodal)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Default Railway Endpoint Backend</label>
+          <input type="url" id="settingRailwayEndpoint" class="form-input" placeholder="https://btwa-finance-production.up.railway.app" value="https://btwa-finance-production.up.railway.app">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Web Portal</label>
+          <input type="text" id="settingAppName" class="form-input" placeholder="Portal Bot WA Keuangan AxaXyz">
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+          <button type="submit" id="saveSettingsBtn" class="btn btn-cyan" style="flex: 1;">💾 Simpan Pengaturan</button>
+          <button type="button" class="btn btn-white" onclick="closeModal('settingsModal')">Tutup</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGIN -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Akses Portal Finansial</h3>
+        <button class="close-modal-btn" onclick="closeModal('loginModal')">✕</button>
+      </div>
+      <form onsubmit="event.preventDefault(); submitLogin();">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="Masukkan username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Masukkan password" required>
+        </div>
+        <div style="margin-top: 18px;">
+          <button type="submit" id="submitLoginBtn" class="btn btn-cyan" style="width: 100%;">
+            🔓 Masuk ke Portal
+          </button>
+        </div>
+        <div style="margin-top: 14px; padding: 10px; background: #F1F5F9; border-radius: 6px; font-size: 0.76rem;">
+          <strong>Demo Cepat:</strong><br>
+          <button type="button" class="btn btn-white btn-sm" style="margin-top: 4px;" onclick="fillDemoLogin('admin', 'admin123')">Login Admin</button>
+          <button type="button" class="btn btn-white btn-sm" style="margin-top: 4px;" onclick="fillDemoLogin('viewer', 'viewer123')">Login Viewer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CLIENT FORM -->
+  <div id="clientModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="clientModalTitle" class="modal-title">Tambah Data Client</h3>
+        <button class="close-modal-btn" onclick="closeModal('clientModal')">✕</button>
+      </div>
+      <form onsubmit="event.preventDefault(); submitClientForm();">
+        <input type="hidden" id="formClientId">
+        <input type="hidden" id="formDriveFolderId">
+
+        <div class="form-group">
+          <label class="form-label">Nama Client / Usaha</label>
+          <input type="text" id="formClientName" class="form-input" placeholder="Contoh: Toko Barokah" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nomor WhatsApp (Aktif)</label>
+          <input type="text" id="formWaNumber" class="form-input" placeholder="628123456789" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Endpoint Backend Railway</label>
+          <input type="url" id="formRailwayEndpoint" class="form-input" placeholder="https://btwa-finance-production.up.railway.app" value="https://btwa-finance-production.up.railway.app" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Status Sesi</label>
+          <select id="formSessionStatus" class="form-select">
+            <option value="Disconnected">Disconnected</option>
+            <option value="Connected">Connected</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Masa Berlaku Akun</label>
+          <input type="text" id="formExpiredDate" class="form-input" value="31/12/2026">
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+          <button type="submit" id="saveClientBtn" class="btn btn-cyan" style="flex: 1;">💾 Simpan Data</button>
+          <button type="button" class="btn btn-white" onclick="closeModal('clientModal')">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: QR RAILWAY REAL BAILEYS -->
+  <div id="qrModal" class="modal-overlay">
+    <div class="modal-content" style="text-align: center; max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Sesi QR WhatsApp Railway</h3>
+        <button class="close-modal-btn" onclick="closeModal('qrModal')">✕</button>
+      </div>
+      <p id="qrClientName" style="font-weight: 800; margin-bottom: 10px; font-size: 1rem;">Memeriksa Sesi...</p>
+      
+      <div id="qrCodeContainer" style="padding: 16px; background: #F8FAFC; border: var(--border-thin); border-radius: 8px; margin-bottom: 16px; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+        <span id="qrStatusText">Memuat Kode QR...</span>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 10px;">
+        <button id="btnRefreshQR" class="btn btn-yellow btn-sm" onclick="refreshCurrentQR()">🔄 Perbarui QR</button>
+        <button class="btn btn-white btn-sm" onclick="closeModal('qrModal')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AI OCR STRUK -->
+  <div id="ocrModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">AI OCR Nota via Google AI Studio</h3>
+        <button class="close-modal-btn" onclick="closeModal('ocrModal')">✕</button>
+      </div>
+
+      <input type="hidden" id="ocrClientId">
+      <p id="ocrClientLabel" style="font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;">Client: -</p>
+
+      <div class="form-group">
+        <label class="form-label">Unggah Foto Nota / Struk Belanja</label>
+        <input type="file" id="receiptFileInput" class="form-input" accept="image/*" onchange="previewReceiptImage(event)">
+      </div>
+
+      <div id="receiptPreviewBox" style="text-align: center; margin-bottom: 14px; display: none;">
+        <img id="receiptPreviewImg" src="" alt="Preview Struk" style="max-height: 180px; border: var(--border-thin); border-radius: 8px;">
+      </div>
+
+      <div id="ocrLoading" class="hidden" style="text-align: center; padding: 14px; font-weight: 800; color: var(--brand-cyan);">
+        ⏳ Memindai data transaksi via Gemini AI...
+      </div>
+
+      <div id="ocrResultBox" class="hidden" style="background: #F0FDF4; border: 2px solid #22C55E; padding: 12px; border-radius: 8px; margin-bottom: 14px; font-size: 0.85rem;">
+        <strong>Hasil Pengecekan AI:</strong>
+        <div id="ocrResultDetails" style="margin-top: 6px;"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" id="startOcrBtn" class="btn btn-cyan" style="flex: 1;" onclick="processOCRSubmit()">⚡ Pindai & Arsipkan</button>
+        <button type="button" class="btn btn-white" onclick="closeModal('ocrModal')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AUDIT LOGS -->
+  <div id="auditModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Riwayat Aktivitas (Audit Logs)</h3>
+        <button class="close-modal-btn" onclick="closeModal('auditModal')">✕</button>
+      </div>
+      <div class="table-container" style="max-height: 350px;">
+        <table class="neu-table" style="font-size: 0.78rem;">
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Aksi</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Dinamis -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KONFIRMASI HAPUS -->
+  <div id="confirmDeleteModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+      <div class="modal-header">
+        <h3 class="modal-title">Konfirmasi Tindakan</h3>
+        <button class="close-modal-btn" onclick="closeModal('confirmDeleteModal')">✕</button>
+      </div>
+      <p style="font-weight: 700; font-size: 0.95rem; margin-bottom: 20px;">
+        Apakah Anda yakin ingin menghapus data client <span id="deleteClientTargetLabel" style="color:#E11D48;"></span> secara permanen?
+      </p>
+      <div style="display: flex; justify-content: center; gap: 12px;">
+        <button id="executeDeleteBtn" class="btn btn-coral">Ya, Hapus</button>
+        <button class="btn btn-white" onclick="closeModal('confirmDeleteModal')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * URL ENDPOINT GOOGLE APPS SCRIPT ANDA (DUAL CONNECTION BRIDGE)
+     * Dapat dijalankan baik di dalam Apps Script langsung maupun dihosting terpisah (Vercel / GitHub)
+     */
+    var GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyoxq3p6vBDUQNpJnsAmP5GRHuwPA7lAMllLoU66n0gOCCvdCHuhvCu84Ae9daIUyc/exec";
+
+    var APP_STATE = {
+      currentUser: null,
+      clients: [],
+      currentPage: 1,
+      totalPages: 1,
+      searchTimer: null,
+      activeClientForQR: null,
+      selectedReceiptBase64: null,
+      selectedReceiptMime: null,
+      pendingDeleteClientId: null,
+      isGasNative: (typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined')
+    };
+
+    var qrPollingTimer = null;
+
+    /**
+     * UNIVERSAL API CALL BRIDGE (DUAL CONNECTION HANDLER)
+     * Otomatis memilih google.script.run jika di dalam Apps Script,
+     * atau HTTP fetch() ke GAS_WEBAPP_URL jika dideploy di Vercel / GitHub Pages.
+     */
+    function apiCall(action, payload, onSuccess, onFailure) {
+      if (APP_STATE.isGasNative) {
+        // Lingkungan Google Apps Script Native
+        var runner = google.script.run
+          .withSuccessHandler(function(res) {
+            if (onSuccess) onSuccess(res);
+          })
+          .withFailureHandler(function(err) {
+            if (onFailure) onFailure(err);
+          });
+
+        if (action === 'loginUser') runner.loginUser(payload.username, payload.password);
+        else if (action === 'getClientsPaginated') runner.getClientsPaginated(payload);
+        else if (action === 'saveClient') runner.saveClient(payload.clientData, APP_STATE.currentUser);
+        else if (action === 'deleteClient') runner.deleteClient(payload.clientId, APP_STATE.currentUser);
+        else if (action === 'fetchRailwaySession') runner.fetchRailwaySession(payload.endpoint);
+        else if (action === 'getFinancialAnalytics') runner.getFinancialAnalytics(payload.clientId);
+        else if (action === 'processReceiptOCR') runner.processReceiptOCR(payload.payload, APP_STATE.currentUser);
+        else if (action === 'askGeminiChat') runner.askGeminiChat(payload.message);
+        else if (action === 'exportFinancialReportPDF') runner.exportFinancialReportPDF(payload.clientId, APP_STATE.currentUser);
+        else if (action === 'getAuditLogsPaginated') runner.getAuditLogsPaginated(payload.limit);
+        else if (action === 'getAllSettings') runner.getAllSettings(APP_STATE.currentUser);
+        else if (action === 'saveAllSettings') runner.saveAllSettings(payload.settingsMap, APP_STATE.currentUser);
+        else if (action === 'testGeminiConnection') runner.testGeminiConnection(payload.apiKey, payload.model, APP_STATE.currentUser);
+        else {
+          if (onFailure) onFailure(new Error('Aksi native tidak ditemukan'));
+        }
+      } else {
+        // Lingkungan Vercel / GitHub Pages / Localhost (Fetch CORS Bridge)
+        var requestBody = {
+          action: action,
+          data: payload,
+          currentUser: APP_STATE.currentUser
+        };
+
+        fetch(GAS_WEBAPP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(requestBody)
+        })
+        .then(function(response) {
+          if (!response.ok) throw new Error('HTTP error ' + response.status);
+          return response.json();
+        })
+        .then(function(jsonRes) {
+          if (onSuccess) onSuccess(jsonRes);
+        })
+        .catch(function(fetchErr) {
+          console.error('[DualConnection Error]', fetchErr);
+          if (onFailure) onFailure(fetchErr);
+        });
+      }
+    }
+
+    // Inisialisasi Aplikasi Saat Memuat DOM
+    window.addEventListener('DOMContentLoaded', function() {
+      var badge = document.getElementById('connModeBadge');
+      if (APP_STATE.isGasNative) {
+        badge.innerText = '⚡ GAS NATIVE';
+        badge.style.backgroundColor = '#BBF7D0';
+      } else {
+        badge.innerText = '🚀 VERCEL / CLOUD';
+        badge.style.backgroundColor = '#FEF08A';
+      }
+
+      renderNativeSVGChart([15, 18.5, 22, 26.5, 19, 24], [6.5, 4.2, 8, 9.5, 3.1, 7], ['Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt']);
+    });
+
+    function showToast(message, isError) {
+      var toast = document.getElementById('appToast');
+      toast.innerText = message;
+      toast.style.display = 'block';
+      toast.style.backgroundColor = isError ? '#FDA4AF' : '#FEF08A';
+
+      setTimeout(function() {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    function switchView(viewName) {
+      var landing = document.getElementById('landingPage');
+      var dashboard = document.getElementById('dashboardPage');
+
+      if (viewName === 'dashboard') {
+        landing.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        loadDashboardData();
+      } else {
+        dashboard.classList.add('hidden');
+        landing.classList.remove('hidden');
+      }
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'flex';
+    }
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+      if (modalId === 'qrModal') {
+        clearInterval(qrPollingTimer);
+      }
+    }
+
+    function fillDemoLogin(username, password) {
+      document.getElementById('loginUsername').value = username;
+      document.getElementById('loginPassword').value = password;
+    }
+
+    function openLoginModal() {
+      if (APP_STATE.currentUser) {
+        switchView('dashboard');
+      } else {
+        openModal('loginModal');
+      }
+    }
+
+    function submitLogin() {
+      var u = document.getElementById('loginUsername').value.trim();
+      var p = document.getElementById('loginPassword').value.trim();
+      var btn = document.getElementById('submitLoginBtn');
+
+      if (!u || !p) {
+        showToast('Username dan password wajib diisi!', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Memverifikasi...';
+
+      apiCall('loginUser', { username: u, password: p }, function(res) {
+        btn.disabled = false;
+        btn.innerText = '🔓 Masuk ke Portal';
+        if (res.success) {
+          handleLoginSuccess(res.user);
+        } else {
+          showToast(res.message, true);
+        }
+      }, function(err) {
+        btn.disabled = false;
+        btn.innerText = '🔓 Masuk ke Portal';
+        showToast('Gagal menghubungi backend: ' + err.message, true);
+      });
+    }
+
+    function handleLoginSuccess(user) {
+      APP_STATE.currentUser = user;
+      closeModal('loginModal');
+
+      document.getElementById('loginNavBtn').classList.add('hidden');
+      var userBadge = document.getElementById('userProfileBadge');
+      userBadge.classList.remove('hidden');
+
+      var indicator = document.getElementById('roleIndicator');
+      indicator.innerText = user.username + ' (' + user.role + ')';
+      indicator.className = 'role-badge ' + (user.role.toLowerCase() === 'admin' ? 'role-admin' : 'role-viewer');
+
+      applyRBAC(user.role);
+
+      showToast('Selamat datang, ' + user.username + '!');
+      switchView('dashboard');
+    }
+
+    function applyRBAC(role) {
+      var isAdmin = (role && role.toLowerCase() === 'admin');
+      var adminElements = document.querySelectorAll('.admin-only');
+
+      for (var i = 0; i < adminElements.length; i++) {
+        if (isAdmin) {
+          adminElements[i].classList.remove('hidden');
+          adminElements[i].removeAttribute('disabled');
+        } else {
+          adminElements[i].classList.add('hidden');
+        }
+      }
+    }
+
+    function logoutSession() {
+      APP_STATE.currentUser = null;
+      document.getElementById('loginNavBtn').classList.remove('hidden');
+      document.getElementById('userProfileBadge').classList.add('hidden');
+      showToast('Sesi telah diakhiri.');
+      switchView('landing');
+    }
+
+    function loadDashboardData() {
+      loadFinancialMetrics();
+      loadClientsTable(1);
+    }
+
+    function loadFinancialMetrics() {
+      apiCall('getFinancialAnalytics', { clientId: 'ALL' }, function(analytics) {
+        document.getElementById('metricInflow').innerText = 'Rp ' + Number(analytics.totalInflow).toLocaleString('id-ID');
+        document.getElementById('metricOutflow').innerText = 'Rp ' + Number(analytics.totalOutflow).toLocaleString('id-ID');
+        document.getElementById('metricNet').innerText = 'Rp ' + Number(analytics.netBalance).toLocaleString('id-ID');
+        renderNativeSVGChart(analytics.monthlyInflow, analytics.monthlyOutflow, analytics.months);
+      }, function(err) {
+        console.warn('Metrik error:', err);
+      });
+    }
+
+    function loadClientsTable(page) {
+      APP_STATE.currentPage = page || 1;
+      var search = document.getElementById('searchInput').value;
+      var status = document.getElementById('statusFilter').value;
+      var tbody = document.getElementById('clientTableBody');
+
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Memuat data tenant live...</td></tr>';
+
+      var params = {
+        page: APP_STATE.currentPage,
+        pageSize: 5,
+        search: search,
+        status: status
+      };
+
+      apiCall('getClientsPaginated', params, function(res) {
+        APP_STATE.clients = res.clients || [];
+        APP_STATE.totalPages = res.totalPages || 1;
+        document.getElementById('metricTotalClients').innerText = res.totalCount || 0;
+        renderClientRows(res.clients);
+        updatePaginationUI(res.page, res.totalPages);
+      }, function(err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat: ' + err.message + '</td></tr>';
+      });
+    }
+
+    function renderClientRows(clients) {
+      var tbody = document.getElementById('clientTableBody');
+      if (!clients || clients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 24px; font-weight:700; color:#64748B;">Belum ada data client terdaftar. Klik "+ Tambah Client Baru" untuk mendaftarkan bot.</td></tr>';
+        return;
+      }
+
+      var isAdmin = APP_STATE.currentUser && APP_STATE.currentUser.role.toLowerCase() === 'admin';
+      var html = '';
+
+      for (var i = 0; i < clients.length; i++) {
+        var c = clients[i];
+        var isConnected = (c.sessionStatus === 'Connected');
+        var statusBadge = isConnected 
+          ? '<span class="role-badge role-admin">● Connected</span>' 
+          : '<span class="role-badge" style="background:#FDA4AF;">○ Disconnected</span>';
+
+        html += '<tr>' +
+          '<td><strong>' + c.clientId + '</strong></td>' +
+          '<td>' + c.clientName + '</td>' +
+          '<td>' + c.waNumber + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td>' + (c.driveFolderId ? '📁 Tersedia' : '⏳ Belum dibuat') + '</td>' +
+          '<td style="text-align: right;">' +
+            '<button class="btn btn-yellow btn-sm" onclick="openRailwayQRModal(\'' + c.clientId + '\')">📱 Sesi QR</button> ' +
+            (isAdmin ? '<button class="btn btn-cyan btn-sm admin-only" onclick="openOCRModal(\'' + c.clientId + '\', \'' + c.clientName + '\')">🧾 Scan Nota</button> ' : '') +
+            (isAdmin ? '<button class="btn btn-green btn-sm admin-only" onclick="downloadReportPDF(\'' + c.clientId + '\')">📄 PDF</button> ' : '') +
+            (isAdmin ? '<button class="btn btn-white btn-sm admin-only" onclick="editClientPrompt(\'' + c.clientId + '\')">✏️</button> ' : '') +
+            (isAdmin ? '<button class="btn btn-coral btn-sm admin-only" onclick="confirmDeleteClient(\'' + c.clientId + '\', \'' + c.clientName + '\')">🗑️</button>' : '') +
+          '</td>' +
+        '</tr>';
+      }
+
+      tbody.innerHTML = html;
+    }
+
+    function updatePaginationUI(page, total) {
+      document.getElementById('pageInfo').innerText = 'Halaman ' + page + ' dari ' + total;
+      document.getElementById('prevPageBtn').disabled = (page <= 1);
+      document.getElementById('nextPageBtn').disabled = (page >= total);
+    }
+
+    function changePage(delta) {
+      var next = APP_STATE.currentPage + delta;
+      if (next >= 1 && next <= APP_STATE.totalPages) {
+        loadClientsTable(next);
+      }
+    }
+
+    function debounceSearch() {
+      clearTimeout(APP_STATE.searchTimer);
+      APP_STATE.searchTimer = setTimeout(function() {
+        loadClientsTable(1);
+      }, 400);
+    }
+
+    function renderNativeSVGChart(inflowData, outflowData, labels) {
+      var container = document.getElementById('svgChartWrapper');
+      if (!container) return;
+
+      var width = 800;
+      var height = 260;
+      var padding = 45;
+      var chartW = width - (padding * 2);
+      var chartH = height - (padding * 2);
+
+      var maxVal = 10;
+      for (var i = 0; i < inflowData.length; i++) {
+        if (inflowData[i] > maxVal) maxVal = inflowData[i];
+        if (outflowData[i] > maxVal) maxVal = outflowData[i];
+      }
+      maxVal = maxVal * 1.15;
+
+      var count = labels.length;
+      var step = chartW / count;
+      var barW = Math.max(12, step * 0.28);
+
+      var svg = '<svg width="100%" height="260" viewBox="0 0 ' + width + ' ' + height + '" xmlns="http://www.w3.org/2000/svg" style="background:#FFFFFF; overflow:visible;">';
+
+      var gridCount = 4;
+      for (var g = 0; g <= gridCount; g++) {
+        var yVal = padding + (chartH / gridCount) * g;
+        var numLabel = Math.round((maxVal - (maxVal / gridCount) * g));
+        svg += '<line x1="' + padding + '" y1="' + yVal + '" x2="' + (width - padding) + '" y2="' + yVal + '" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="3,3" />';
+        svg += '<text x="' + (padding - 8) + '" y="' + (yVal + 4) + '" font-size="10" font-weight="700" fill="#64748B" text-anchor="end">' + numLabel + 'M</text>';
+      }
+
+      svg += '<line x1="' + padding + '" y1="' + (height - padding) + '" x2="' + (width - padding) + '" y2="' + (height - padding) + '" stroke="#000000" stroke-width="3" stroke-linecap="square" />';
+      svg += '<line x1="' + padding + '" y1="' + padding + '" x2="' + padding + '" y2="' + (height - padding) + '" stroke="#000000" stroke-width="3" stroke-linecap="square" />';
+
+      var linePoints = [];
+      for (var k = 0; k < count; k++) {
+        var centerX = padding + (step * k) + (step / 2);
+        
+        var inH = (inflowData[k] / maxVal) * chartH;
+        var inY = (height - padding) - inH;
+        var inX = centerX - barW - 2;
+        svg += '<rect x="' + inX + '" y="' + inY + '" width="' + barW + '" height="' + inH + '" fill="#0284C7" stroke="#000000" stroke-width="2" rx="4">';
+        svg += '<title>' + labels[k] + ' Pemasukan: Rp ' + inflowData[k] + 'M</title></rect>';
+
+        var outH = (outflowData[k] / maxVal) * chartH;
+        var outY = (height - padding) - outH;
+        var outX = centerX + 2;
+        svg += '<rect x="' + outX + '" y="' + outY + '" width="' + barW + '" height="' + outH + '" fill="#FDA4AF" stroke="#000000" stroke-width="2" rx="4">';
+        svg += '<title>' + labels[k] + ' Pengeluaran: Rp ' + outflowData[k] + 'M</title></rect>';
+
+        var net = inflowData[k] - outflowData[k];
+        var netH = (net / maxVal) * chartH;
+        var netY = (height - padding) - netH;
+        linePoints.push(centerX + ',' + netY);
+
+        svg += '<text x="' + centerX + '" y="' + (height - padding + 20) + '" font-size="11" font-weight="800" fill="#000000" text-anchor="middle">' + labels[k] + '</text>';
+      }
+
+      if (linePoints.length > 1) {
+        svg += '<polyline points="' + linePoints.join(' ') + '" fill="none" stroke="#10B981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />';
+        for (var p = 0; p < linePoints.length; p++) {
+          var coords = linePoints[p].split(',');
+          svg += '<circle cx="' + coords[0] + '" cy="' + coords[1] + '" r="5" fill="#10B981" stroke="#000000" stroke-width="2" />';
+        }
+      }
+
+      svg += '</svg>';
+      container.innerHTML = svg;
+    }
+
+    function openClientModal(isEdit, clientObj) {
+      var modal = document.getElementById('clientModal');
+      var title = document.getElementById('clientModalTitle');
+
+      if (isEdit && clientObj) {
+        title.innerText = 'Edit Data Client';
+        document.getElementById('formClientId').value = clientObj.clientId;
+        document.getElementById('formClientName').value = clientObj.clientName;
+        document.getElementById('formWaNumber').value = clientObj.waNumber;
+        document.getElementById('formRailwayEndpoint').value = clientObj.railwayEndpoint;
+        document.getElementById('formSessionStatus').value = clientObj.sessionStatus;
+        document.getElementById('formExpiredDate').value = clientObj.expiredDate;
+        document.getElementById('formDriveFolderId').value = clientObj.driveFolderId || '';
+      } else {
+        title.innerText = 'Tambah Client Baru';
+        document.getElementById('formClientId').value = '';
+        document.getElementById('formClientName').value = '';
+        document.getElementById('formWaNumber').value = '';
+        var defaultRailwayInput = document.getElementById('settingRailwayEndpoint');
+        document.getElementById('formRailwayEndpoint').value = (defaultRailwayInput ? defaultRailwayInput.value : '') || 'https://btwa-finance-production.up.railway.app';
+        document.getElementById('formSessionStatus').value = 'Disconnected';
+        document.getElementById('formExpiredDate').value = '31/12/2026';
+        document.getElementById('formDriveFolderId').value = '';
+      }
+
+      openModal('clientModal');
+    }
+
+    function editClientPrompt(clientId) {
+      for (var i = 0; i < APP_STATE.clients.length; i++) {
+        if (APP_STATE.clients[i].clientId === clientId) {
+          openClientModal(true, APP_STATE.clients[i]);
+          return;
+        }
+      }
+    }
+
+    function confirmDeleteClient(clientId, clientName) {
+      APP_STATE.pendingDeleteClientId = clientId;
+      document.getElementById('deleteClientTargetLabel').innerText = clientName + ' (' + clientId + ')';
+      document.getElementById('executeDeleteBtn').onclick = executeDeleteClient;
+      openModal('confirmDeleteModal');
+    }
+
+    function executeDeleteClient() {
+      var clientId = APP_STATE.pendingDeleteClientId;
+      closeModal('confirmDeleteModal');
+      if (!clientId) return;
+
+      apiCall('deleteClient', { clientId: clientId }, function(res) {
+        if (res.success) {
+          showToast(res.message);
+          loadClientsTable(APP_STATE.currentPage);
+        } else {
+          showToast(res.message, true);
+        }
+      }, function(err) {
+        showToast('Gagal menghapus: ' + err.message, true);
+      });
+    }
+
+    function submitClientForm() {
+      var clientData = {
+        clientId: document.getElementById('formClientId').value,
+        clientName: document.getElementById('formClientName').value.trim(),
+        waNumber: document.getElementById('formWaNumber').value.trim(),
+        railwayEndpoint: document.getElementById('formRailwayEndpoint').value.trim() || 'https://btwa-finance-production.up.railway.app',
+        sessionStatus: document.getElementById('formSessionStatus').value,
+        expiredDate: document.getElementById('formExpiredDate').value.trim(),
+        driveFolderId: document.getElementById('formDriveFolderId').value
+      };
+
+      var btn = document.getElementById('saveClientBtn');
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      closeModal('clientModal');
+      showToast('Menyimpan data client ke Google Sheet...');
+
+      apiCall('saveClient', { clientData: clientData }, function(res) {
+        btn.disabled = false;
+        btn.innerText = '💾 Simpan Data';
+        if (res.success) {
+          showToast(res.message);
+          loadClientsTable(APP_STATE.currentPage);
+        } else {
+          showToast(res.message, true);
+        }
+      }, function(err) {
+        btn.disabled = false;
+        btn.innerText = '💾 Simpan Data';
+        showToast('Gagal menyimpan: ' + err.message, true);
+      });
+    }
+
+    function toggleApiKeyVisibility() {
+      var input = document.getElementById('settingGeminiApiKey');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function openSettingsModal() {
+      openModal('settingsModal');
+      document.getElementById('testApiResult').classList.add('hidden');
+
+      apiCall('getAllSettings', {}, function(res) {
+        if (res.success && res.settings) {
+          for (var i = 0; i < res.settings.length; i++) {
+            var s = res.settings[i];
+            if (s.key === 'GEMINI_API_KEY') {
+              document.getElementById('settingGeminiApiKey').value = s.value;
+            }
+            if (s.key === 'GEMINI_MODEL_TEXT') {
+              var modelVal = s.value === 'gemini-2.5-flash' ? 'gemini-3.6-flash' : s.value;
+              document.getElementById('settingGeminiModelText').value = modelVal;
+            }
+            if (s.key === 'GEMINI_MODEL_VISION') {
+              var modelVisVal = s.value === 'gemini-2.5-flash' ? 'gemini-3.6-flash' : s.value;
+              document.getElementById('settingGeminiModelVision').value = modelVisVal;
+            }
+            if (s.key === 'RAILWAY_DEFAULT_ENDPOINT') {
+              document.getElementById('settingRailwayEndpoint').value = s.value;
+            }
+            if (s.key === 'APP_NAME') {
+              document.getElementById('settingAppName').value = s.value;
+            }
+          }
+        }
+      }, function(err) {
+        console.warn('Gagal memuat setting:', err);
+      });
+    }
+
+    function runTestGeminiApi() {
+      var apiKey = document.getElementById('settingGeminiApiKey').value.trim();
+      var modelText = document.getElementById('settingGeminiModelText').value;
+      var testBtn = document.getElementById('btnTestApi');
+      var resultDiv = document.getElementById('testApiResult');
+
+      if (!apiKey) {
+        showToast('Masukkan API Key terlebih dahulu!', true);
+        return;
+      }
+
+      testBtn.disabled = true;
+      testBtn.innerText = '⏳ Menguji Koneksi Google AI Studio...';
+      resultDiv.classList.remove('hidden');
+      resultDiv.style.backgroundColor = '#FEF08A';
+      resultDiv.innerHTML = 'Menghubungkan ke Gemini API (' + modelText + ')...';
+
+      apiCall('testGeminiConnection', { apiKey: apiKey, model: modelText }, function(res) {
+        testBtn.disabled = false;
+        testBtn.innerText = '🧪 Tes Koneksi Gemini API Sekarang';
+        if (res.success) {
+          resultDiv.style.backgroundColor = '#BBF7D0';
+          resultDiv.innerHTML = '✅ ' + res.message;
+          showToast('Tes Koneksi Berhasil!');
+        } else {
+          resultDiv.style.backgroundColor = '#FDA4AF';
+          resultDiv.innerHTML = '❌ ' + res.message;
+          showToast('Tes Koneksi Gagal!', true);
+        }
+      }, function(err) {
+        testBtn.disabled = false;
+        testBtn.innerText = '🧪 Tes Koneksi Gemini API Sekarang';
+        resultDiv.style.backgroundColor = '#FDA4AF';
+        resultDiv.innerHTML = '❌ Error koneksi: ' + err.message;
+      });
+    }
+
+    function submitSettings() {
+      var apiKey = document.getElementById('settingGeminiApiKey').value.trim();
+      var modelText = document.getElementById('settingGeminiModelText').value;
+      var modelVision = document.getElementById('settingGeminiModelVision').value;
+      var railwayEndpoint = document.getElementById('settingRailwayEndpoint').value.trim() || 'https://btwa-finance-production.up.railway.app';
+      var appName = document.getElementById('settingAppName').value.trim();
+      var btn = document.getElementById('saveSettingsBtn');
+
+      btn.disabled = true;
+      btn.innerText = 'Menyimpan...';
+
+      var settingsMap = {
+        'GEMINI_API_KEY': apiKey,
+        'GEMINI_MODEL_TEXT': modelText,
+        'GEMINI_MODEL_VISION': modelVision,
+        'RAILWAY_DEFAULT_ENDPOINT': railwayEndpoint,
+        'APP_NAME': appName
+      };
+
+      apiCall('saveAllSettings', { settingsMap: settingsMap }, function(res) {
+        btn.disabled = false;
+        btn.innerText = '💾 Simpan Pengaturan';
+        closeModal('settingsModal');
+        showToast('Pengaturan sistem & model AI berhasil disimpan!');
+      }, function(err) {
+        btn.disabled = false;
+        btn.innerText = '💾 Simpan Pengaturan';
+        showToast('Gagal: ' + err.message, true);
+      });
+    }
+
+    function toggleAiChat() {
+      var box = document.getElementById('aiChatboxWindow');
+      if (box.style.display === 'flex') {
+        box.style.display = 'none';
+      } else {
+        box.style.display = 'flex';
+        document.getElementById('aiChatInput').focus();
+      }
+    }
+
+    function sendAiMessage() {
+      var input = document.getElementById('aiChatInput');
+      var text = input.value.trim();
+      if (!text) return;
+
+      var body = document.getElementById('aiChatBody');
+      body.innerHTML += '<div class="chat-msg msg-user">' + text + '</div>';
+      input.value = '';
+      body.scrollTop = body.scrollHeight;
+
+      var typingId = 'typing_' + Date.now();
+      body.innerHTML += '<div id="' + typingId + '" class="chat-msg msg-bot">⏳ AxaBOT sedang memproses jawaban...</div>';
+      body.scrollTop = body.scrollHeight;
+
+      apiCall('askGeminiChat', { message: text }, function(res) {
+        var loader = document.getElementById(typingId);
+        if (loader) loader.remove();
+        body.innerHTML += '<div class="chat-msg msg-bot">' + res.reply + '</div>';
+        body.scrollTop = body.scrollHeight;
+      }, function(err) {
+        var loader = document.getElementById(typingId);
+        if (loader) loader.remove();
+        body.innerHTML += '<div class="chat-msg msg-bot" style="background:#FDA4AF;">Gagal merespon: ' + err.message + '</div>';
+        body.scrollTop = body.scrollHeight;
+      });
+    }
+
+    function openRailwayQRModal(clientId) {
+      APP_STATE.activeClientForQR = clientId;
+      var client = null;
+      for (var i = 0; i < APP_STATE.clients.length; i++) {
+        if (APP_STATE.clients[i].clientId === clientId) {
+          client = APP_STATE.clients[i];
+          break;
+        }
+      }
+
+      var nameLabel = document.getElementById('qrClientName');
+      var container = document.getElementById('qrCodeContainer');
+
+      nameLabel.innerText = client ? client.clientName + ' (' + client.waNumber + ')' : clientId;
+      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:8px;">' +
+        '<div style="font-size:2rem;">⏳</div>' +
+        '<span style="font-weight:700; color:#0284C7;">Menghubungkan ke Railway & memuat QR resmi...</span>' +
+      '</div>';
+      openModal('qrModal');
+
+      var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
+
+      fetchRealRailwayQR(targetEndpoint, false);
+
+      clearInterval(qrPollingTimer);
+      qrPollingTimer = setInterval(function() {
+        var modal = document.getElementById('qrModal');
+        if (modal && modal.style.display === 'flex') {
+          fetchRealRailwayQR(targetEndpoint, true);
+        } else {
+          clearInterval(qrPollingTimer);
+        }
+      }, 7000);
+    }
+
+    function fetchRealRailwayQR(targetEndpoint, isSilent) {
+      var container = document.getElementById('qrCodeContainer');
+      var btn = document.getElementById('btnRefreshQR');
+      if (!isSilent && btn) {
+        btn.disabled = true;
+        btn.innerText = '⏳ Memuat...';
+      }
+
+      apiCall('fetchRailwaySession', { endpoint: targetEndpoint }, function(res) {
+        if (!isSilent && btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Perbarui QR';
+        }
+
+        if (res.success && res.sessionStatus === 'Connected') {
+          container.innerHTML = '<div style="background:#BBF7D0; border:2px solid #16A34A; padding:20px; border-radius:8px; width:100%; text-align:center;">' +
+            '<div style="font-size:3rem; margin-bottom:8px;">✅</div>' +
+            '<h4 style="font-weight:900; font-size:1.1rem; margin-bottom:4px;">WhatsApp Terhubung Aktif!</h4>' +
+            '<p style="font-size:0.82rem; font-weight:600; color:#166534;">Sesi bot berjalan normal di server Railway.</p>' +
+          '</div>';
+          clearInterval(qrPollingTimer);
+          loadClientsTable(APP_STATE.currentPage);
+          return;
+        }
+
+        if (res.success && res.qrImage) {
+          container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:10px;">' +
+            '<img src="' + res.qrImage + '" alt="QR WhatsApp Baileys" style="width:230px; height:230px; border:3px solid #000; border-radius:10px; box-shadow:4px 4px 0px #000; background:#fff;" />' +
+            '<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">' +
+              '<span class="role-badge" style="background:#FEF08A;">📷 Scan via WhatsApp di HP Anda</span>' +
+            '</div>' +
+            '<small style="font-weight:700; color:#64748B;">Perangkat Tertaut > Tautkan Perangkat • ' + (res.checkedAt || 'Baru saja') + '</small>' +
+          '</div>';
+        } else {
+          container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
+            '<div style="font-size:2.2rem; margin-bottom:6px;">⚠️</div>' +
+            '<strong style="display:block; margin-bottom:6px; font-size:0.95rem;">' + (res.message || 'QR belum siap') + '</strong>' +
+            '<small style="color:#64748B; display:block;">Target server: <code style="background:#eee; padding:2px 4px; border-radius:4px;">' + targetEndpoint + '</code></small>' +
+          '</div>';
+        }
+      }, function(err) {
+        if (!isSilent && btn) {
+          btn.disabled = false;
+          btn.innerText = '🔄 Perbarui QR';
+        }
+        container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
+          '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
+        '</div>';
+      });
+    }
+
+    function refreshCurrentQR() {
+      if (APP_STATE.activeClientForQR) {
+        var client = null;
+        for (var i = 0; i < APP_STATE.clients.length; i++) {
+          if (APP_STATE.clients[i].clientId === APP_STATE.activeClientForQR) {
+            client = APP_STATE.clients[i];
+            break;
+          }
+        }
+        var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
+        fetchRealRailwayQR(targetEndpoint, false);
+      }
+    }
+
+    function openOCRModal(clientId, clientName) {
+      document.getElementById('ocrClientId').value = clientId;
+      document.getElementById('ocrClientLabel').innerText = 'Client: ' + clientName + ' (' + clientId + ')';
+      document.getElementById('receiptFileInput').value = '';
+      document.getElementById('receiptPreviewBox').style.display = 'none';
+      document.getElementById('ocrResultBox').classList.add('hidden');
+      document.getElementById('ocrLoading').classList.add('hidden');
+      APP_STATE.selectedReceiptBase64 = null;
+      openModal('ocrModal');
+    }
+
+    function previewReceiptImage(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+
+      APP_STATE.selectedReceiptMime = file.type;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var fullDataUrl = e.target.result;
+        APP_STATE.selectedReceiptBase64 = fullDataUrl.split(',')[1];
+        document.getElementById('receiptPreviewImg').src = fullDataUrl;
+        document.getElementById('receiptPreviewBox').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function processOCRSubmit() {
+      var clientId = document.getElementById('ocrClientId').value;
+      if (!APP_STATE.selectedReceiptBase64) {
+        showToast('Silakan pilih foto struk terlebih dahulu!', true);
+        return;
+      }
+
+      var loading = document.getElementById('ocrLoading');
+      var resultBox = document.getElementById('ocrResultBox');
+      var resultDetails = document.getElementById('ocrResultDetails');
+      var startBtn = document.getElementById('startOcrBtn');
+
+      loading.classList.remove('hidden');
+      resultBox.classList.add('hidden');
+      startBtn.disabled = true;
+
+      var payload = {
+        clientId: clientId,
+        base64Data: APP_STATE.selectedReceiptBase64,
+        mimeType: APP_STATE.selectedReceiptMime
+      };
+
+      apiCall('processReceiptOCR', { payload: payload }, function(res) {
+        loading.classList.add('hidden');
+        startBtn.disabled = false;
+        if (res.success) {
+          resultDetails.innerHTML = '<strong>Merchant:</strong> ' + res.data.merchant + '<br>' +
+            '<strong>Tanggal:</strong> ' + res.data.date + '<br>' +
+            '<strong>Nominal:</strong> Rp ' + Number(res.data.amount).toLocaleString('id-ID') + '<br>' +
+            '<strong>Kategori:</strong> ' + res.data.category + '<br>' +
+            '<strong>Drive File:</strong> <a href="' + res.driveUrl + '" target="_blank">Lihat Bukti Foto</a>';
+          resultBox.classList.remove('hidden');
+          showToast('Struk belanja berhasil dianalisis Gemini AI!');
+          loadFinancialMetrics();
+        } else {
+          showToast(res.message, true);
+        }
+      }, function(err) {
+        loading.classList.add('hidden');
+        startBtn.disabled = false;
+        showToast('Error AI OCR: ' + err.message, true);
+      });
+    }
+
+    function downloadReportPDF(clientId) {
+      showToast('Menyiapkan berkas PDF resmi dari Google Drive...');
+      apiCall('exportFinancialReportPDF', { clientId: clientId }, function(res) {
+        if (res.success) {
+          window.open(res.fileUrl, '_blank');
+          showToast('Laporan PDF berhasil dibuat!');
+        } else {
+          showToast(res.message, true);
+        }
+      }, function(err) {
+        showToast('Gagal ekspor PDF: ' + err.message, true);
+      });
+    }
+
+    function openAuditModal() {
+      openModal('auditModal');
+      var tbody = document.getElementById('auditTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat audit trail...</td></tr>';
+
+      apiCall('getAuditLogsPaginated', { limit: 25 }, function(res) {
+        var logs = res.logs || [];
+        if (!logs || logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada log aktivitas.</td></tr>';
+          return;
+        }
+        var h = '';
+        for (var i = 0; i < logs.length; i++) {
+          var l = logs[i];
+          h += '<tr>' +
+            '<td>' + l[1] + '</td>' +
+            '<td>' + l[2] + '</td>' +
+            '<td>' + l[3] + '</td>' +
+            '<td><strong>' + l[4] + '</strong></td>' +
+            '<td>' + l[6] + '</td>' +
+          '</tr>';
+        }
+        tbody.innerHTML = h;
+      }, function(err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuat audit log: ' + err.message + '</td></tr>';
+      });
+    }
+
+    var deferredPrompt;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('Aplikasi berhasil dipasang di perangkat Anda!');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        showToast('Untuk install: Klik ikon "Add to Home Screen" di browser Anda.');
+      }
+    }
+  </script>
+</body>
+</html>
