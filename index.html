@@ -490,6 +490,7 @@
 </head>
 <body>
 
+  <!-- Toast Notification -->
   <div id="appToast" class="toast-box">Pemberitahuan</div>
 
   <header class="navbar">
@@ -720,7 +721,6 @@
     <span>Tanya Bot WA</span>
   </a>
 
-  <!-- Widget Chatbox AxaBOT Financial AI -->
   <div id="aiChatboxWindow" class="ai-chatbox-window">
     <div class="ai-chat-header">
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -897,9 +897,13 @@
         <span id="qrStatusText">Memuat Kode QR...</span>
       </div>
 
-      <div style="display: flex; justify-content: center; gap: 10px;">
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;">
         <button id="btnRefreshQR" class="btn btn-yellow btn-sm" onclick="refreshCurrentQR()">🔄 Perbarui QR</button>
+        <button id="btnResetSession" class="btn btn-coral btn-sm admin-only" onclick="triggerForceResetSession()" title="Bersihkan sesi macet & buat QR baru">⚡ Buat QR Baru</button>
         <button class="btn btn-white btn-sm" onclick="closeModal('qrModal')">Tutup</button>
+      </div>
+      <div style="margin-top: 10px;">
+        <small id="qrPollingStatus" style="color: #64748B; font-weight: 700; font-size: 0.72rem;">Auto-refresh aktif setiap 5 detik</small>
       </div>
     </div>
   </div>
@@ -982,10 +986,11 @@
 
   <script>
     /**
-     * URL ENDPOINT GOOGLE APPS SCRIPT ANDA (DUAL CONNECTION BRIDGE)
+     * URL ENDPOINT GOOGLE APPS SCRIPT (DUAL CONNECTION BRIDGE)
      * Otomatis terhubung baik diakses via Web App GAS langsung maupun Vercel / GitHub Pages
      */
     var GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyoxq3p6vBDUQNpJnsAmP5GRHuwPA7lAMllLoU66n0gOCCvdCHuhvCu84Ae9daIUyc/exec";
+    var DEFAULT_RAILWAY_SECRET = "AXA_XYZ_SECRET_2026";
 
     var APP_STATE = {
       currentUser: null,
@@ -1627,58 +1632,100 @@
         } else {
           clearInterval(qrPollingTimer);
         }
-      }, 7000);
+      }, 5000);
     }
 
+    /**
+     * Mengambil QR Code Asli Baileys secara Cerdas:
+     * Mencoba direct HTTP GET terlebih dahulu jika di Vercel, lalu fallback ke GAS Proxy
+     */
     function fetchRealRailwayQR(targetEndpoint, isSilent) {
       var container = document.getElementById('qrCodeContainer');
       var btn = document.getElementById('btnRefreshQR');
+      var pollingStatus = document.getElementById('qrPollingStatus');
+
       if (!isSilent && btn) {
         btn.disabled = true;
         btn.innerText = '⏳ Memuat...';
       }
 
-      apiCall('fetchRailwaySession', { endpoint: targetEndpoint }, function(res) {
+      var cleanEndpoint = targetEndpoint.replace(/\/+$/, '');
+
+      // Helper perender respon QR
+      var handleQrResponse = function(res) {
         if (!isSilent && btn) {
           btn.disabled = false;
           btn.innerText = '🔄 Perbarui QR';
         }
 
-        if (res.success && res.sessionStatus === 'Connected') {
+        if (res && (res.status === 'Connected' || res.connectionStatus === 'Connected' || res.sessionStatus === 'Connected')) {
           container.innerHTML = '<div style="background:#BBF7D0; border:2px solid #16A34A; padding:20px; border-radius:8px; width:100%; text-align:center;">' +
             '<div style="font-size:3rem; margin-bottom:8px;">✅</div>' +
             '<h4 style="font-weight:900; font-size:1.1rem; margin-bottom:4px;">WhatsApp Terhubung Aktif!</h4>' +
             '<p style="font-size:0.82rem; font-weight:600; color:#166534;">Sesi bot berjalan normal di server Railway.</p>' +
           '</div>';
+          if (pollingStatus) pollingStatus.innerText = 'Koneksi aktif • ' + (res.checkedAt || new Date().toLocaleTimeString('id-ID'));
           clearInterval(qrPollingTimer);
           loadClientsTable(APP_STATE.currentPage);
           return;
         }
 
-        if (res.success && res.qrImage) {
+        if (res && res.qrImage) {
           container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:10px;">' +
             '<img src="' + res.qrImage + '" alt="QR WhatsApp Baileys" style="width:230px; height:230px; border:3px solid #000; border-radius:10px; box-shadow:4px 4px 0px #000; background:#fff;" />' +
             '<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">' +
               '<span class="role-badge" style="background:#FEF08A;">📷 Scan via WhatsApp di HP Anda</span>' +
             '</div>' +
-            '<small style="font-weight:700; color:#64748B;">Perangkat Tertaut > Tautkan Perangkat • ' + (res.checkedAt || 'Baru saja') + '</small>' +
+            '<small style="font-weight:700; color:#64748B;">Perangkat Tertaut > Tautkan Perangkat • ' + (res.checkedAt || new Date().toLocaleTimeString('id-ID')) + '</small>' +
           '</div>';
+          if (pollingStatus) pollingStatus.innerText = 'Menunggu scan HP... • ' + new Date().toLocaleTimeString('id-ID');
         } else {
           container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
             '<div style="font-size:2.2rem; margin-bottom:6px;">⚠️</div>' +
-            '<strong style="display:block; margin-bottom:6px; font-size:0.95rem;">' + (res.message || 'QR belum siap') + '</strong>' +
-            '<small style="color:#64748B; display:block;">Target server: <code style="background:#eee; padding:2px 4px; border-radius:4px;">' + targetEndpoint + '</code></small>' +
+            '<strong style="display:block; margin-bottom:6px; font-size:0.95rem;">' + (res.message || 'QR sedang diinisialisasi Baileys') + '</strong>' +
+            '<small style="color:#64748B; display:block;">Target server: <code style="background:#eee; padding:2px 4px; border-radius:4px;">' + cleanEndpoint + '</code></small>' +
           '</div>';
         }
-      }, function(err) {
-        if (!isSilent && btn) {
-          btn.disabled = false;
-          btn.innerText = '🔄 Perbarui QR';
-        }
-        container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
-          '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
-        '</div>';
-      });
+      };
+
+      // Jalur 1: Coba akses direct HTTP ke Railway (CORS enabled di server.js)
+      if (!APP_STATE.isGasNative && window.location.protocol === 'https:' && cleanEndpoint.startsWith('https:')) {
+        fetch(cleanEndpoint + '/qr?view=json', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(function(resp) {
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          return resp.json();
+        })
+        .then(function(directJson) {
+          handleQrResponse(directJson);
+        })
+        .catch(function(directErr) {
+          console.warn('[QR Direct Fetch Failed, fallback to GAS Bridge]', directErr.message);
+          // Jalur 2: Fallback ke Google Apps Script proxy
+          apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleQrResponse, function(err) {
+            if (!isSilent && btn) {
+              btn.disabled = false;
+              btn.innerText = '🔄 Perbarui QR';
+            }
+            container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
+              '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
+            '</div>';
+          });
+        });
+      } else {
+        // Lingkungan GAS native: langsung gunakan bridge
+        apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleQrResponse, function(err) {
+          if (!isSilent && btn) {
+            btn.disabled = false;
+            btn.innerText = '🔄 Perbarui QR';
+          }
+          container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
+            '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
+          '</div>';
+        });
+      }
     }
 
     function refreshCurrentQR() {
@@ -1693,6 +1740,57 @@
         var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
         fetchRealRailwayQR(targetEndpoint, false);
       }
+    }
+
+    function triggerForceResetSession() {
+      var btn = document.getElementById('btnResetSession');
+      var container = document.getElementById('qrCodeContainer');
+      var client = null;
+
+      for (var i = 0; i < APP_STATE.clients.length; i++) {
+        if (APP_STATE.clients[i].clientId === APP_STATE.activeClientForQR) {
+          client = APP_STATE.clients[i];
+          break;
+        }
+      }
+
+      var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
+      var cleanEndpoint = targetEndpoint.replace(/\/+$/, '');
+
+      btn.disabled = true;
+      btn.innerText = '⏳ Mereset Sesi...';
+      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:8px;">' +
+        '<div style="font-size:2rem;">🧹</div>' +
+        '<span style="font-weight:700; color:#E11D48;">Membersihkan auth_session di Railway & meminta QR baru...</span>' +
+      '</div>';
+
+      fetch(cleanEndpoint + '/reset-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + DEFAULT_RAILWAY_SECRET
+        },
+        body: JSON.stringify({ token: DEFAULT_RAILWAY_SECRET })
+      })
+      .then(function(resp) {
+        return resp.json();
+      })
+      .then(function(resJson) {
+        btn.disabled = false;
+        btn.innerText = '⚡ Buat QR Baru';
+        showToast(resJson.message || 'Sesi dibersihkan. Memuat QR baru...');
+        setTimeout(function() {
+          fetchRealRailwayQR(cleanEndpoint, false);
+        }, 1500);
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.innerText = '⚡ Buat QR Baru';
+        showToast('Permintaan reset dikirim ke server.');
+        setTimeout(function() {
+          fetchRealRailwayQR(cleanEndpoint, false);
+        }, 2000);
+      });
     }
 
     function openOCRModal(clientId, clientName) {
