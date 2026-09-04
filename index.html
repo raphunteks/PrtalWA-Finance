@@ -10,6 +10,9 @@
   <link rel="shortcut icon" type="image/png" href="axalogo.png">
   <link rel="apple-touch-icon" href="axalogo.png">
   
+  <!-- Socket.IO Client for Instant Realtime QR & Status Updates -->
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
   <style>
     :root {
       --bg-main: #E0F2FE;
@@ -478,6 +481,39 @@
       max-width: 320px;
     }
 
+    /* Animated Neubrutalism Loaders & Spinners */
+    .neu-spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #000000;
+      border-top-color: var(--brand-cyan);
+      border-radius: 50%;
+      animation: spinNeu 0.85s linear infinite;
+      box-shadow: var(--shadow-hard-sm);
+    }
+    @keyframes spinNeu {
+      to { transform: rotate(360deg); }
+    }
+
+    .neu-pulse-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--card-accent);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-hard);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulseNeu 1.5s ease-in-out infinite;
+      font-size: 1.8rem;
+    }
+    @keyframes pulseNeu {
+      0% { transform: scale(0.9); opacity: 0.75; }
+      50% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.75; }
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 768px) {
@@ -886,24 +922,27 @@
   </div>
 
   <div id="qrModal" class="modal-overlay">
-    <div class="modal-content" style="text-align: center; max-width: 440px;">
+    <div class="modal-content" style="text-align: center; max-width: 450px;">
       <div class="modal-header">
-        <h3 class="modal-title">Sesi QR WhatsApp Railway</h3>
+        <h3 class="modal-title">Sesi WhatsApp Railway</h3>
         <button class="close-modal-btn" onclick="closeModal('qrModal')">✕</button>
       </div>
-      <p id="qrClientName" style="font-weight: 800; margin-bottom: 10px; font-size: 1rem;">Memeriksa Sesi...</p>
+      <p id="qrClientName" style="font-weight: 800; margin-bottom: 12px; font-size: 1rem;">Memeriksa Sesi...</p>
       
-      <div id="qrCodeContainer" style="padding: 16px; background: #F8FAFC; border: var(--border-thin); border-radius: 8px; margin-bottom: 16px; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
-        <span id="qrStatusText">Memuat Kode QR...</span>
+      <!-- Container Dinamis: Loader -> QR Code -> Checklist Sudah Login -->
+      <div id="qrCodeContainer" style="padding: 16px; background: #F8FAFC; border: var(--border-dark); box-shadow: var(--shadow-hard); border-radius: 10px; margin-bottom: 16px; min-height: 290px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+        <div class="neu-spinner"></div>
+        <span style="font-weight:800; color:var(--brand-cyan);">Menghubungkan ke Railway...</span>
       </div>
 
-      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;">
+      <!-- Action Buttons Container -->
+      <div id="qrActionButtons" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;">
         <button id="btnRefreshQR" class="btn btn-yellow btn-sm" onclick="refreshCurrentQR()">🔄 Perbarui QR</button>
         <button id="btnResetSession" class="btn btn-coral btn-sm admin-only" onclick="triggerForceResetSession()" title="Bersihkan sesi macet & buat QR baru">⚡ Buat QR Baru</button>
         <button class="btn btn-white btn-sm" onclick="closeModal('qrModal')">Tutup</button>
       </div>
       <div style="margin-top: 10px;">
-        <small id="qrPollingStatus" style="color: #64748B; font-weight: 700; font-size: 0.72rem;">Auto-refresh aktif setiap 5 detik</small>
+        <small id="qrPollingStatus" style="color: #64748B; font-weight: 700; font-size: 0.72rem;">Sinkronisasi Realtime Aktif</small>
       </div>
     </div>
   </div>
@@ -1002,15 +1041,14 @@
       selectedReceiptBase64: null,
       selectedReceiptMime: null,
       pendingDeleteClientId: null,
-      isGasNative: (typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined')
+      isGasNative: (typeof google !== 'undefined' && typeof google.script !== 'undefined' && typeof google.script.run !== 'undefined'),
+      activeSocket: null
     };
 
     var qrPollingTimer = null;
 
     /**
      * UNIVERSAL API CALL BRIDGE (DUAL CONNECTION HANDLER)
-     * Otomatis memilih google.script.run jika di dalam Apps Script,
-     * atau HTTP fetch() ke GAS_WEBAPP_URL jika dideploy di Vercel / GitHub Pages.
      */
     function apiCall(action, payload, onSuccess, onFailure) {
       if (APP_STATE.isGasNative) {
@@ -1107,10 +1145,15 @@
     function openModal(modalId) {
       document.getElementById(modalId).style.display = 'flex';
     }
+    
     function closeModal(modalId) {
       document.getElementById(modalId).style.display = 'none';
       if (modalId === 'qrModal') {
         clearInterval(qrPollingTimer);
+        if (APP_STATE.activeSocket) {
+          try { APP_STATE.activeSocket.disconnect(); } catch (e) {}
+          APP_STATE.activeSocket = null;
+        }
       }
     }
 
@@ -1251,10 +1294,10 @@
         var c = clients[i];
         var isConnected = (c.sessionStatus === 'Connected');
         var statusBadge = isConnected 
-          ? '<span class="role-badge role-admin">● Connected</span>' 
-          : '<span class="role-badge" style="background:#FDA4AF;">○ Disconnected</span>';
+          ? '<span id="statusBadge_' + c.clientId + '" class="role-badge role-admin">● Connected</span>' 
+          : '<span id="statusBadge_' + c.clientId + '" class="role-badge" style="background:#FDA4AF;">○ Disconnected</span>';
 
-        html += '<tr>' +
+        html += '<tr id="row_client_' + c.clientId + '">' +
           '<td><strong>' + c.clientId + '</strong></td>' +
           '<td>' + c.clientName + '</td>' +
           '<td>' + c.waNumber + '</td>' +
@@ -1611,24 +1654,26 @@
       }
 
       var nameLabel = document.getElementById('qrClientName');
-      var container = document.getElementById('qrCodeContainer');
-
       nameLabel.innerText = client ? client.clientName + ' (' + client.waNumber + ')' : clientId;
-      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:8px;">' +
-        '<div style="font-size:2rem;">⏳</div>' +
-        '<span style="font-weight:700; color:#0284C7;">Menghubungkan ke Railway & memuat QR resmi...</span>' +
-      '</div>';
+      
+      // Tampilkan animasi loader Neubrutalism awal
+      renderInitializingLoader('Menghubungkan ke server Railway & memeriksa sesi...');
       openModal('qrModal');
 
       var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
+      var cleanEndpoint = targetEndpoint.replace(/\/+$/, '');
 
-      fetchRealRailwayQR(targetEndpoint, false);
+      // Inisialisasi Realtime Socket.IO Connection (jika didukung browser)
+      initRealtimeSocket(cleanEndpoint);
+
+      // Jalankan polling direct/proxy HTTP
+      fetchRealRailwayQR(cleanEndpoint, false);
 
       clearInterval(qrPollingTimer);
       qrPollingTimer = setInterval(function() {
         var modal = document.getElementById('qrModal');
         if (modal && modal.style.display === 'flex') {
-          fetchRealRailwayQR(targetEndpoint, true);
+          fetchRealRailwayQR(cleanEndpoint, true);
         } else {
           clearInterval(qrPollingTimer);
         }
@@ -1636,59 +1681,182 @@
     }
 
     /**
-     * Mengambil QR Code Asli Baileys secara Cerdas:
-     * Mencoba direct HTTP GET terlebih dahulu jika di Vercel, lalu fallback ke GAS Proxy
+     * Tampilan Loading Animasi Neubrutalism yang Elegan
      */
-    function fetchRealRailwayQR(targetEndpoint, isSilent) {
+    function renderInitializingLoader(statusMessage) {
       var container = document.getElementById('qrCodeContainer');
-      var btn = document.getElementById('btnRefreshQR');
+      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px 10px; gap:14px;">' +
+        '<div class="neu-pulse-ring">⏳</div>' +
+        '<h4 style="font-weight:900; font-size:1.05rem; margin:0;">Sedang Menyiapkan Sesi...</h4>' +
+        '<p style="font-size:0.82rem; font-weight:600; color:#475569; max-width:280px; text-align:center; margin:0;">' +
+          statusMessage +
+        '</p>' +
+        '<div style="display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:800; color:var(--brand-cyan);">' +
+          '<div class="neu-spinner" style="width:18px; height:18px; border-width:3px;"></div>' +
+          '<span>Sinkronisasi otomatis aktif...</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /**
+     * Tampilan "SUDAH LOGIN" / Checklist Terhubung Resmi
+     * QR Code disembunyikan total, diganti dengan kartu checklist terverifikasi
+     */
+    function renderAlreadyLoggedInState(connectedNumber, checkedAt) {
+      var container = document.getElementById('qrCodeContainer');
+      var pollingStatus = document.getElementById('qrPollingStatus');
+      var clientNumber = connectedNumber;
+
+      if (!clientNumber && APP_STATE.activeClientForQR) {
+        for (var i = 0; i < APP_STATE.clients.length; i++) {
+          if (APP_STATE.clients[i].clientId === APP_STATE.activeClientForQR) {
+            clientNumber = APP_STATE.clients[i].waNumber;
+            break;
+          }
+        }
+      }
+
+      container.innerHTML = '<div style="background:#BBF7D0; border:var(--border-dark); box-shadow:var(--shadow-hard); padding:24px 16px; border-radius:12px; width:100%; text-align:center;">' +
+        '<div style="font-size:3.5rem; line-height:1; margin-bottom:10px;">✅</div>' +
+        '<div class="brand-badge" style="background:#16A34A; color:#FFFFFF; font-size:0.82rem; padding:4px 12px; margin-bottom:10px; display:inline-block;">' +
+          'WHATSAPP SUDAH LOGIN' +
+        '</div>' +
+        '<h3 style="font-weight:900; font-size:1.2rem; margin-bottom:6px;">Bot Terhubung Aktif!</h3>' +
+        '<p style="font-size:0.84rem; font-weight:700; color:#166534; margin-bottom:14px;">' +
+          'Sesi bot WhatsApp berjalan normal di server Railway. Tidak perlu scan QR lagi.' +
+        '</p>' +
+        '<div style="background:#FFFFFF; border:var(--border-thin); border-radius:8px; padding:8px 12px; font-size:0.85rem; font-weight:800; display:inline-block; box-shadow:var(--shadow-hard-sm);">' +
+          '📱 Nomor Bot: <span style="color:#0284C7;">' + (clientNumber || 'Aktif') + '</span>' +
+        '</div>' +
+      '</div>';
+
+      if (pollingStatus) {
+        pollingStatus.innerHTML = '<span style="color:#16A34A;">● Terkoneksi</span> • ' + (checkedAt || new Date().toLocaleTimeString('id-ID'));
+      }
+
+      // Perbarui tampilan status tabel klien secara langsung (Optimistic UI)
+      if (APP_STATE.activeClientForQR) {
+        var badge = document.getElementById('statusBadge_' + APP_STATE.activeClientForQR);
+        if (badge) {
+          badge.className = 'role-badge role-admin';
+          badge.innerText = '● Connected';
+        }
+      }
+    }
+
+    /**
+     * Tampilan Kode QR Asli Baileys untuk Dipindai
+     */
+    function renderLiveQRState(qrImage, checkedAt) {
+      var container = document.getElementById('qrCodeContainer');
       var pollingStatus = document.getElementById('qrPollingStatus');
 
+      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:10px;">' +
+        '<div style="position:relative;">' +
+          '<img src="' + qrImage + '" alt="QR WhatsApp Baileys" style="width:230px; height:230px; border:var(--border-dark); border-radius:10px; box-shadow:var(--shadow-hard); background:#fff;" />' +
+          '<div style="position:absolute; top:-8px; right:-8px; background:var(--accent-coral);" class="brand-badge">LIVE QR</div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">' +
+          '<span class="role-badge" style="background:#FEF08A;">📷 Scan via WhatsApp di HP Anda</span>' +
+        '</div>' +
+        '<small style="font-weight:700; color:#64748B;">Perangkat Tertaut > Tautkan Perangkat • ' + (checkedAt || new Date().toLocaleTimeString('id-ID')) + '</small>' +
+      '</div>';
+
+      if (pollingStatus) {
+        pollingStatus.innerText = 'Menunggu scan HP... • ' + (checkedAt || new Date().toLocaleTimeString('id-ID'));
+      }
+
+      // Perbarui tabel jika sebelumnya connected lalu terputus
+      if (APP_STATE.activeClientForQR) {
+        var badge = document.getElementById('statusBadge_' + APP_STATE.activeClientForQR);
+        if (badge) {
+          badge.className = 'role-badge';
+          badge.style.backgroundColor = '#FDA4AF';
+          badge.innerText = '○ Disconnected';
+        }
+      }
+    }
+
+    /**
+     * Inisialisasi Realtime Socket.IO Connection ke Server Railway
+     */
+    function initRealtimeSocket(cleanEndpoint) {
+      if (typeof io === 'undefined') return;
+
+      if (APP_STATE.activeSocket) {
+        try { APP_STATE.activeSocket.disconnect(); } catch (e) {}
+        APP_STATE.activeSocket = null;
+      }
+
+      try {
+        var socket = io(cleanEndpoint, {
+          transports: ['websocket', 'polling'],
+          timeout: 8000,
+          reconnection: true
+        });
+
+        socket.on('connect', function() {
+          console.log('[Socket.IO] Terhubung realtime ke Railway:', cleanEndpoint);
+          socket.emit('request_qr');
+        });
+
+        socket.on('connection_status', function(data) {
+          if (!data) return;
+          if (data.status === 'Connected' || data.connectionStatus === 'Connected') {
+            renderAlreadyLoggedInState(data.connectedNumber);
+          }
+        });
+
+        socket.on('qr_update', function(data) {
+          if (data && data.qrImage) {
+            renderLiveQRState(data.qrImage, new Date().toLocaleTimeString('id-ID'));
+          }
+        });
+
+        APP_STATE.activeSocket = socket;
+      } catch (errSocket) {
+        console.warn('[Socket.IO Fallback ke Polling HTTP]', errSocket.message);
+      }
+    }
+
+    /**
+     * Mengambil Data Status & QR Code via HTTP (Dual Path: Direct Fetch & GAS Proxy)
+     */
+    function fetchRealRailwayQR(cleanEndpoint, isSilent) {
+      var btn = document.getElementById('btnRefreshQR');
       if (!isSilent && btn) {
         btn.disabled = true;
         btn.innerText = '⏳ Memuat...';
       }
 
-      var cleanEndpoint = targetEndpoint.replace(/\/+$/, '');
-
-      // Helper perender respon QR
-      var handleQrResponse = function(res) {
+      var handleResponse = function(res) {
         if (!isSilent && btn) {
           btn.disabled = false;
           btn.innerText = '🔄 Perbarui QR';
         }
 
-        if (res && (res.status === 'Connected' || res.connectionStatus === 'Connected' || res.sessionStatus === 'Connected')) {
-          container.innerHTML = '<div style="background:#BBF7D0; border:2px solid #16A34A; padding:20px; border-radius:8px; width:100%; text-align:center;">' +
-            '<div style="font-size:3rem; margin-bottom:8px;">✅</div>' +
-            '<h4 style="font-weight:900; font-size:1.1rem; margin-bottom:4px;">WhatsApp Terhubung Aktif!</h4>' +
-            '<p style="font-size:0.82rem; font-weight:600; color:#166534;">Sesi bot berjalan normal di server Railway.</p>' +
-          '</div>';
-          if (pollingStatus) pollingStatus.innerText = 'Koneksi aktif • ' + (res.checkedAt || new Date().toLocaleTimeString('id-ID'));
-          clearInterval(qrPollingTimer);
-          loadClientsTable(APP_STATE.currentPage);
+        if (!res) {
+          renderInitializingLoader('Menunggu respon dari server Railway...');
           return;
         }
 
-        if (res && res.qrImage) {
-          container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:10px;">' +
-            '<img src="' + res.qrImage + '" alt="QR WhatsApp Baileys" style="width:230px; height:230px; border:3px solid #000; border-radius:10px; box-shadow:4px 4px 0px #000; background:#fff;" />' +
-            '<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">' +
-              '<span class="role-badge" style="background:#FEF08A;">📷 Scan via WhatsApp di HP Anda</span>' +
-            '</div>' +
-            '<small style="font-weight:700; color:#64748B;">Perangkat Tertaut > Tautkan Perangkat • ' + (res.checkedAt || new Date().toLocaleTimeString('id-ID')) + '</small>' +
-          '</div>';
-          if (pollingStatus) pollingStatus.innerText = 'Menunggu scan HP... • ' + new Date().toLocaleTimeString('id-ID');
-        } else {
-          container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
-            '<div style="font-size:2.2rem; margin-bottom:6px;">⚠️</div>' +
-            '<strong style="display:block; margin-bottom:6px; font-size:0.95rem;">' + (res.message || 'QR sedang diinisialisasi Baileys') + '</strong>' +
-            '<small style="color:#64748B; display:block;">Target server: <code style="background:#eee; padding:2px 4px; border-radius:4px;">' + cleanEndpoint + '</code></small>' +
-          '</div>';
+        // Skenario 1: SUDAH LOGIN / TERHUBUNG AKTIF
+        if (res.status === 'Connected' || res.connectionStatus === 'Connected' || res.sessionStatus === 'Connected') {
+          renderAlreadyLoggedInState(res.connectedNumber || res.number, res.checkedAt);
+          return;
         }
+
+        // Skenario 2: MUNCUL KODE QR BARU
+        if (res.qrImage) {
+          renderLiveQRState(res.qrImage, res.checkedAt);
+          return;
+        }
+
+        // Skenario 3: Baileys Masih Inisialisasi (Tampilkan Loader Animasi, Jangan Kotak Kuning Jelek)
+        renderInitializingLoader(res.message || 'Server Railway sedang menginisialisasi Baileys. Kode QR akan muncul otomatis...');
       };
 
-      // Jalur 1: Coba akses direct HTTP ke Railway (CORS enabled di server.js)
+      // Jalur 1: Coba direct HTTP GET jika di browser / Vercel
       if (!APP_STATE.isGasNative && window.location.protocol === 'https:' && cleanEndpoint.startsWith('https:')) {
         fetch(cleanEndpoint + '/qr?view=json', {
           method: 'GET',
@@ -1699,31 +1867,26 @@
           return resp.json();
         })
         .then(function(directJson) {
-          handleQrResponse(directJson);
+          handleResponse(directJson);
         })
         .catch(function(directErr) {
-          console.warn('[QR Direct Fetch Failed, fallback to GAS Bridge]', directErr.message);
-          // Jalur 2: Fallback ke Google Apps Script proxy
-          apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleQrResponse, function(err) {
+          // Jalur 2: Fallback ke GAS Bridge jika Direct Fetch terhambat
+          apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleResponse, function(err) {
             if (!isSilent && btn) {
               btn.disabled = false;
               btn.innerText = '🔄 Perbarui QR';
             }
-            container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
-              '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
-            '</div>';
+            renderInitializingLoader('Menghubungkan via proxy Google Cloud: ' + err.message);
           });
         });
       } else {
-        // Lingkungan GAS native: langsung gunakan bridge
-        apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleQrResponse, function(err) {
+        // Lingkungan GAS Native: Gunakan bridge langsung
+        apiCall('fetchRailwaySession', { endpoint: cleanEndpoint }, handleResponse, function(err) {
           if (!isSilent && btn) {
             btn.disabled = false;
             btn.innerText = '🔄 Perbarui QR';
           }
-          container.innerHTML = '<div style="padding:16px; text-align:center; color:#E11D48;">' +
-            '<strong>Gagal memuat sesi: ' + err.message + '</strong>' +
-          '</div>';
+          renderInitializingLoader('Menghubungkan via proxy Google Cloud: ' + err.message);
         });
       }
     }
@@ -1738,13 +1901,13 @@
           }
         }
         var targetEndpoint = (client && client.railwayEndpoint) ? client.railwayEndpoint : 'https://btwa-finance-production.up.railway.app';
-        fetchRealRailwayQR(targetEndpoint, false);
+        renderInitializingLoader('Memperbarui token QR code langsung dari Baileys...');
+        fetchRealRailwayQR(targetEndpoint.replace(/\/+$/, ''), false);
       }
     }
 
     function triggerForceResetSession() {
       var btn = document.getElementById('btnResetSession');
-      var container = document.getElementById('qrCodeContainer');
       var client = null;
 
       for (var i = 0; i < APP_STATE.clients.length; i++) {
@@ -1759,10 +1922,7 @@
 
       btn.disabled = true;
       btn.innerText = '⏳ Mereset Sesi...';
-      container.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; gap:8px;">' +
-        '<div style="font-size:2rem;">🧹</div>' +
-        '<span style="font-weight:700; color:#E11D48;">Membersihkan auth_session di Railway & meminta QR baru...</span>' +
-      '</div>';
+      renderInitializingLoader('Membersihkan auth_session di Railway & meminta QR baru...');
 
       fetch(cleanEndpoint + '/reset-session', {
         method: 'POST',
@@ -1783,10 +1943,10 @@
           fetchRealRailwayQR(cleanEndpoint, false);
         }, 1500);
       })
-      .catch(function(err) {
+      .catch(function() {
         btn.disabled = false;
         btn.innerText = '⚡ Buat QR Baru';
-        showToast('Permintaan reset dikirim ke server.');
+        showToast('Permintaan reset sesi terkirim.');
         setTimeout(function() {
           fetchRealRailwayQR(cleanEndpoint, false);
         }, 2000);
