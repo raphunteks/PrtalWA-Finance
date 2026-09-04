@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Portal Bot WA Keuangan Multi-Client - AxaXyz</title>
   
+  <!-- Favicon & App Touch Icons -->
+  <link rel="icon" type="image/png" href="axalogo.png">
+  <link rel="shortcut icon" type="image/png" href="axalogo.png">
+  <link rel="apple-touch-icon" href="axalogo.png">
+  
   <style>
     :root {
       --bg-main: #E0F2FE;
@@ -46,7 +51,7 @@
     header.navbar {
       background-color: var(--card-bg);
       border-bottom: var(--border-dark);
-      padding: 14px 0;
+      padding: 12px 0;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -64,6 +69,16 @@
       color: var(--text-dark);
       font-weight: 800;
       font-size: 1.15rem;
+    }
+    .brand-icon-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: var(--border-thin);
+      object-fit: contain;
+      background: #FFFFFF;
+      box-shadow: var(--shadow-hard-sm);
+      display: inline-block;
     }
     .brand-badge {
       background-color: var(--accent-yellow);
@@ -480,7 +495,8 @@
   <header class="navbar">
     <div class="container nav-wrapper">
       <a href="#" class="brand-logo" onclick="switchView('landing'); return false;">
-        <span>🤖 AxaBOT Portal</span>
+        <img src="axalogo.png" alt="Axa Logo" class="brand-icon-img" onerror="this.src='https://placehold.co/64x64/0284C7/FFFFFF?text=AXA'">
+        <span>AxaBOT Portal</span>
         <span id="connModeBadge" class="brand-badge" style="background:#BBF7D0;">🌐 DUAL CONNECT</span>
       </a>
       
@@ -528,7 +544,9 @@
           </div>
           <div style="text-align: center;">
             <div class="neu-card" style="background-color: var(--card-accent); transform: rotate(1deg);">
-              <div style="font-size: 3rem; margin-bottom: 10px;">📈 🧾 💬</div>
+              <div style="font-size: 3rem; margin-bottom: 10px;">
+                <img src="axalogo.png" alt="Axa Logo Hero" style="width: 70px; height: 70px; border-radius: 12px; border: var(--border-dark); box-shadow: var(--shadow-hard); background: #fff;" onerror="this.style.display='none'">
+              </div>
               <h3 style="font-size: 1.15rem; font-weight: 900; margin-bottom: 6px;">Otomasi Finansial 100%</h3>
               <p style="font-size: 0.85rem; font-weight: 600;">
                 Tersambung langsung ke Google Sheet & Baileys Railway via dual mode Google Apps Script & Vercel.
@@ -673,7 +691,7 @@
             </tr>
           </thead>
           <tbody id="clientTableBody">
-            <!-- Bersih dari dummy data -->
+            <!-- Diisi live oleh backend -->
           </tbody>
         </table>
       </div>
@@ -706,7 +724,7 @@
   <div id="aiChatboxWindow" class="ai-chatbox-window">
     <div class="ai-chat-header">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span>🤖</span>
+        <img src="axalogo.png" alt="Axa AI Icon" style="width: 22px; height: 22px; border-radius: 4px; border: 1px solid #fff; background: #fff;" onerror="this.src='https://placehold.co/32x32/0284C7/FFFFFF?text=AI'">
         <span>AxaBOT Financial AI</span>
       </div>
       <button style="background: none; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer; color: #FFF;" onclick="toggleAiChat()">✕</button>
@@ -724,7 +742,6 @@
     </div>
   </div>
 
-  <!-- MODAL: SETTINGS -->
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -793,7 +810,6 @@
     </div>
   </div>
 
-  <!-- MODAL: LOGIN -->
   <div id="loginModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -823,7 +839,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CLIENT FORM -->
   <div id="clientModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -870,7 +885,6 @@
     </div>
   </div>
 
-  <!-- MODAL: QR RAILWAY REAL BAILEYS -->
   <div id="qrModal" class="modal-overlay">
     <div class="modal-content" style="text-align: center; max-width: 440px;">
       <div class="modal-header">
@@ -890,7 +904,6 @@
     </div>
   </div>
 
-  <!-- MODAL: AI OCR STRUK -->
   <div id="ocrModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -926,7 +939,6 @@
     </div>
   </div>
 
-  <!-- MODAL: AUDIT LOGS -->
   <div id="auditModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 650px;">
       <div class="modal-header">
@@ -952,7 +964,6 @@
     </div>
   </div>
 
-  <!-- MODAL: KONFIRMASI HAPUS -->
   <div id="confirmDeleteModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 400px; text-align: center;">
       <div class="modal-header">
@@ -972,7 +983,7 @@
   <script>
     /**
      * URL ENDPOINT GOOGLE APPS SCRIPT ANDA (DUAL CONNECTION BRIDGE)
-     * Dapat dijalankan baik di dalam Apps Script langsung maupun dihosting terpisah (Vercel / GitHub)
+     * Otomatis terhubung baik diakses via Web App GAS langsung maupun Vercel / GitHub Pages
      */
     var GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyoxq3p6vBDUQNpJnsAmP5GRHuwPA7lAMllLoU66n0gOCCvdCHuhvCu84Ae9daIUyc/exec";
 
@@ -998,7 +1009,6 @@
      */
     function apiCall(action, payload, onSuccess, onFailure) {
       if (APP_STATE.isGasNative) {
-        // Lingkungan Google Apps Script Native
         var runner = google.script.run
           .withSuccessHandler(function(res) {
             if (onSuccess) onSuccess(res);
@@ -1024,7 +1034,6 @@
           if (onFailure) onFailure(new Error('Aksi native tidak ditemukan'));
         }
       } else {
-        // Lingkungan Vercel / GitHub Pages / Localhost (Fetch CORS Bridge)
         var requestBody = {
           action: action,
           data: payload,
@@ -1052,7 +1061,6 @@
       }
     }
 
-    // Inisialisasi Aplikasi Saat Memuat DOM
     window.addEventListener('DOMContentLoaded', function() {
       var badge = document.getElementById('connModeBadge');
       if (APP_STATE.isGasNative) {
